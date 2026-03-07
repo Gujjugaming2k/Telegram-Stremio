@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Telegram Stremio{% endblock %}</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -25,80 +26,39 @@
             }
         }
     </script>
+
     <style>
         body {
-            background-color: {
-                    {
-                    theme.colors.background
-                }
-            }
-
-            ;
-
-            color: {
-                    {
-                    theme.colors.text
-                }
-            }
-
-            ;
+            background-color: {{ theme.colors.background }};
+            color: {{ theme.colors.text }};
         }
 
         .theme-card {
-            background-color: {
-                    {
-                    theme.colors.card
-                }
-            }
-
-            ;
+            background-color: {{ theme.colors.card }};
+            color: {{ theme.colors.text }};
         }
 
         .theme-primary {
-            background-color: {
-                    {
-                    theme.colors.primary
-                }
-            }
-
-            ;
+            background-color: {{ theme.colors.primary }};
         }
 
         .theme-secondary {
-            background-color: {
-                    {
-                    theme.colors.secondary
-                }
-            }
-
-            ;
+            background-color: {{ theme.colors.secondary }};
         }
 
         .theme-accent {
-            background-color: {
-                    {
-                    theme.colors.accent
-                }
-            }
-
-            ;
+            background-color: {{ theme.colors.accent }};
         }
 
         .theme-text-secondary {
-            color: {
-                    {
-                    theme.colors.text_secondary
-                }
-            }
-
-            ;
+            color: {{ theme.colors.text_secondary }};
         }
     </style>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
     <!-- Navigation -->
-    <nav class="theme-card shadow-lg border-b">
+    <nav class="theme-card shadow-lg border-b text-text">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
@@ -155,7 +115,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="theme-card border-t mt-auto">
+    <footer class="theme-card border-t mt-auto text-text">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex justify-between items-center">
                 <p class="theme-text-secondary text-sm">© 2025 Telegram Stremio. All rights reserved.</p>
