@@ -91,14 +91,6 @@ This project is a **next-generation Telegram Stremio Media Server** that allows 
 - 🏷️ **Manual IMDb/TMDb Override** – Users can instantly update or fix incorrect metadata for a file by simply editing the Telegram channel message caption and pasting the correct IMDb/TMDB URL.
 
 
-## 🆕 New Features
-
-- ⚡ **Speed Test** – Speed testing added for all bots on each file to optimize streaming performance.
-- 🔄 **Improved Load Balancer** – Enhanced load balancing algorithm for better traffic distribution across multiple tokens.
-- 🚫 **Failed Bot Management** – Max failed bots will be marked as shadow or idle for buffer optimization. This is due to some data center bots having rate-limiting constraints.
-- 📊 **Bot-wise Analysis** – Detailed bot performance analytics available in the admin dashboard for monitoring and optimization.
-- 🧹 **Deleted File Detection** – Automatic detection of deleted files on every restart, with admin capability to manually remove them from the database.
-- 🛠️ **Additional Admin Features** – Various small enhancements and improvements for administrators.
 
 
 ## ⚙️ How It Works
