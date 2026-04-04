@@ -562,11 +562,32 @@ async def get_streams(
                 filename, quality_str, size
             )
 
-            streams.append({
-                "name": stream_name,
-                "title": stream_title,
-                "url": f"{BASE_URL}/dl/{token}/{quality.get('id')}/video.mkv"
-            })
+            original_url = f"{BASE_URL}/dl/{token}/{quality.get('id')}/video.mkv"
+            proxy_url = f"{Telegram.HTTP_PROXY_URL}{original_url}" if Telegram.PROXY and Telegram.HTTP_PROXY_URL else None
+
+            if Telegram.SHOW_PROXY_AND_NON_PROXY_BOTH and proxy_url:
+                streams.append({
+                    "name": f"{stream_name} (Proxy)",
+                    "title": stream_title,
+                    "url": proxy_url
+                })
+                streams.append({
+                    "name": f"{stream_name} (Direct)",
+                    "title": stream_title,
+                    "url": original_url
+                })
+            elif proxy_url:
+                streams.append({
+                    "name": stream_name,
+                    "title": stream_title,
+                    "url": proxy_url
+                })
+            else:
+                streams.append({
+                    "name": stream_name,
+                    "title": stream_title,
+                    "url": original_url
+                })
 
     streams.sort(
         key=lambda s: get_resolution_priority(s.get("name", "")),
