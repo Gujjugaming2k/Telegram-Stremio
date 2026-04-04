@@ -89,6 +89,9 @@ This project is a **next-generation Telegram Stremio Media Server** that allows 
 - 🆓 **Free Mode Toggle** – Administrators can turn off the `SUBSCRIPTION` requirement in `config.env` to allow all users immediate access via an automatically generated API token.
 - 🔄 **Automatic Stream Cleanup** – Deleting a source message in the Telegram channel instantly deletes all corresponding streams and qualities from the Stremio Addon Database and Admin Panel, preventing dead links.
 - 🏷️ **Manual IMDb/TMDb Override** – Users can instantly update or fix incorrect metadata for a file by simply editing the Telegram channel message caption and pasting the correct IMDb/TMDB URL.
+- 🛡️ **Stream Stability & Recovery** – Intelligent `b""` empty-chunk fallback that securely pads video streams with zero bytes, and reduced chunk retry lockups (from 6 to 3) to instantaneously recover from stalled parts without breaking the video player.
+- 🎯 **DC-Aware Bot Selection** – The underlying streaming load-balancer now ensures that a bot located in the exact same Data Center as the media file is prioritized. This substantially minimizes cross-DC round-trips and timeouts.
+- 🌐 **Addon Proxy Integration** – Built-in functionality targeting `config.env` configurations (`Proxy`, `ProxyType`, `HTTP_Proxy_URL`, `SHOW_ProxyAndNonProxyBoth`) allows instant proxying or caching of video streams (such as routing through Cloudflare Workers) natively on Stremio.
 
 
 
@@ -257,8 +260,8 @@ All environment variables for this project are defined in the `config.env` file.
 | **`OWNER_ID`** | Your **Telegram user ID**. This ID has full administrative access. |
 | **`REPLACE_MODE`** | When `true`, new files replace existing files of the same quality. When `false`, multiple files of the same quality are allowed. |
 | **`HIDE_CATALOG`** | When `true`, the default Telegram Stremio Catalog is hidden, and streams only show in the Cinemata catalog (i.e., Cinemata addon is mandatory). Default is `false`. |
-| **`PARALLEL`** | Controls the number of parallel chunks/connections used during streaming. Higher values can improve download speed and reduce buffering but will increase CPU, memory usage, and Telegram API load. Default is `1` (for this you should have more Multi Tokens). |
-| **`PRE_FETCH`** | Enables prefetching of upcoming stream chunks before they are requested by the player. Higher values allow smoother playback and faster seeking at the cost of extra bandwidth and memory usage. Default is `1` (for this you should have more Multi Tokens). |
+| **`PARALLEL`** | Controls the queue size for chunks buffered ahead. Keeps the player buffer full without overloading Telegram. Example: `PARALLEL = 4` means 4 chunks are buffered ahead. Default is `1`. |
+| **`PRE_FETCH`** | Controls the number of workers downloading chunks simultaneously. Example: `PRE_FETCH = 3` means 3 workers download concurrently. Higher values can improve speed but increase API load. Default is `1`. |
 
 ### 🗄️ Storage
 
@@ -325,6 +328,12 @@ To avoid this, you can use **MULTI_TOKEN** system:
 - Add each bot as **Admin** in your `AUTH_CHANNEL`(s).
 - Add the tokens in your `config.env` as `MULTI_TOKEN1`, `MULTI_TOKEN2`, `MULTI_TOKEN3`, and so on.
 - The system will automatically distribute the load among all these bots!
+
+> ⚠️ **Real Limitation:** 
+> Even if you configure 10 bots in your system, **a single stream will typically only use 1 bot**. Extra bots do not make a single stream download 10x faster. Their primary purpose is to help handle **multiple users streaming simultaneously** without hitting rate limits:
+> - User 1 → assigned to Bot 1
+> - User 2 → assigned to Bot 2
+> - User 3 → assigned to Bot 3
 
 
 ---

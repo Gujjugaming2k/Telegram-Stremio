@@ -166,19 +166,19 @@ class ByteStreamer:
         async def fetch_chunk_with_retries(seq_idx: int, off: int) -> Tuple[int, Optional[bytes]]:
             """Fetch one chunk with timeout, exponential back-off, and bot fallback.
 
-            Retry schedule (max 6 tries):
-              tries 0-2  → same bot / same session, 15 s timeout each
-              tries 3-5  → try a healthier fallback bot (if available),
+            Retry schedule (max 3 tries):
+              tries 0    → same bot / same session, 15 s timeout each
+              tries 1-2  → try a healthier fallback bot (if available),
                            still with 15 s timeout
             On every TimeoutError the primary client's failure counter is incremented
             so select_best_client will avoid it for future requests.
             """
             tries = 0
-            while tries < 6 and not stop_event.is_set():
+            while tries < 3 and not stop_event.is_set():
                 # --- choose which media session to use this attempt ---
                 use_session = media_session
                 use_client_idx = client_index
-                if tries >= 3 and len(multi_clients) > 1:
+                if tries >= 1 and len(multi_clients) > 1:
                     # Pick the best *other* client by score = workload + 3×failures
                     def _score(idx):
                         return work_loads.get(idx, 0) + 3 * client_failures.get(idx, 0)
@@ -213,6 +213,10 @@ class ByteStreamer:
                         timeout=15.0,
                     )
                     chunk_bytes = getattr(r, "bytes", None) if r else None
+                    
+                    if chunk_bytes == b"":
+                        return seq_idx, None
+
                     # If we succeeded via a fallback, mark primary as degraded
                     if use_client_idx != client_index:
                         client_failures[client_index] = client_failures.get(client_index, 0) + 1
@@ -236,7 +240,7 @@ class ByteStreamer:
                 await asyncio.sleep(min(0.5 * (2 ** (tries - 1)), 10.0))
 
             LOGGER.error(
-                "Failed to fetch chunk seq=%s off=%s after 6 retries, client=%s",
+                "Failed to fetch chunk seq=%s off=%s after 3 retries, client=%s",
                 seq_idx, off, client_index,
             )
             return seq_idx, None
@@ -289,9 +293,8 @@ class ByteStreamer:
                             scheduled_tasks.pop(completed_seq, None)
 
                             if chunk_bytes is None:
-                                LOGGER.error("Chunk fetch returned empty for stream=%s seq=%s", stream_id, seq_idx)
-                                await q.put((None, None))
-                                return
+                                LOGGER.error("Chunk fetch returned empty for stream=%s seq=%s. Filling with zero bytes.", stream_id, seq_idx)
+                                chunk_bytes = b"\x00" * chunk_size
 
                             results_buffer[seq_idx] = chunk_bytes
 

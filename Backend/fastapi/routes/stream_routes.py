@@ -100,15 +100,15 @@ def select_best_client(target_dc: int) -> int:
     def _score(idx: int) -> int:
         return work_loads.get(idx, 0) + 3 * client_failures.get(idx, 0)
 
-    # --- DC-aware selection (uncomment to enable) ---------------------------
-    # matching = [
-    #     idx for idx, dc in client_dc_map.items()
-    #     if dc == target_dc and idx in multi_clients
-    # ]
-    # if matching:
-    #     selected = min(matching, key=_score)
-    #     LOGGER.debug("DC-match client %s (DC %s) score=%s", selected, target_dc, _score(selected))
-    #     return selected
+    # --- DC-aware selection (Enabled) ---------------------------------------
+    matching = [
+        idx for idx, dc in client_dc_map.items()
+        if dc == target_dc and idx in multi_clients
+    ]
+    if matching:
+        selected = min(matching, key=_score)
+        LOGGER.debug("DC-match client %s (DC %s) score=%s", selected, target_dc, _score(selected))
+        return selected
     # ------------------------------------------------------------------------
 
     if multi_clients:
